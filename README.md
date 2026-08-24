@@ -1,15 +1,31 @@
 <p align="center">
   <h1 align="center">儿童保险智能投保系统 Case Study</h1>
-  <p align="center">一个真实商业项目的脱敏复盘：从线下儿童身份核验，到 AI 人脸识别、一键投保、异步承保回调与数据安全设计</p>
+  <p align="center">从线下儿童身份核验，到 AI 人脸识别、一键投保、异步承保回调与未成年人数据安全设计</p>
 </p>
 
 <p align="center">
-  <strong>真实商业项目</strong> · <strong>2.5 万元独立交付</strong> · <strong>9 家门店 / 8 个工商主体</strong> · <strong>未成年人敏感数据安全</strong> · <strong>脱敏开源</strong>
+  <strong>真实商业项目</strong> ·
+  <strong>2.5 万元独立交付</strong> ·
+  <strong>9 家门店 / 8 个工商主体</strong> ·
+  <strong>未成年人数据安全</strong> ·
+  <strong>脱敏开源</strong>
 </p>
 
 > 这个仓库不是原生产系统源码，而是我为作品集整理的脱敏 case study。它只保留可公开的通用设计、核心安全逻辑和产品复盘，不包含真实客户数据、生产配置、服务器地址、第三方接口密钥或客户交付代码。
 
-## Why This Project Matters
+## 项目速览
+
+| 维度 | 内容 |
+| --- | --- |
+| 项目类型 | 独立承接的真实商业项目 |
+| 项目目标 | 用 AI 人脸识别辅助儿童身份核验，并打通一键投保与承保状态回写 |
+| 使用角色 | 家长、前台、教练、老板 |
+| 业务范围 | 9 家门店，8 个工商主体 |
+| 项目金额 | 2.5 万元独立交付 |
+| 核心难点 | 未成年人敏感数据安全、保险异步状态准确性、门店权限边界、上线前安全验证 |
+| 本仓库内容 | 脱敏产品复盘、架构文档、通用安全代码样例、测试用例 |
+
+## 为什么这个项目有代表性
 
 这个项目的代表性不在于“做了一个小程序”，而在于客户一开始就强烈关注**未成年人身份数据安全**。系统要处理儿童姓名、身份证号、人脸资料照、监护人手机号、门店营业主体和保险订单状态，任何一个环节出错都可能造成数据泄露、重复扣费、投保主体错误或孩子实际未承保。
 
@@ -23,9 +39,19 @@
 - 保险承保回调丢失时不能让订单永久卡住
 - 资源采购要服务于安全边界，而不是只追求最低成本
 
-## Product Scope
+## 我的角色
 
-面向某连锁攀岩馆的内部员工系统，目标是把线下投保流程从“电话问家长 + 手工核验 + 人工记录状态”改成：
+我独立承接并完成这个 0-1 商业项目，覆盖：
+
+- 需求访谈、业务流程梳理、一期范围收敛
+- 产品方案、角色权限、异常流程和安全方案设计
+- 技术框架设计与云资源采购评估
+- 小程序/H5/后端/数据库/对象存储/人脸识别/保险 API 的交付推进
+- 上线前备案、部署、安全加固、渗透测试配合与问题复盘
+
+## 业务闭环
+
+面向某连锁攀岩馆的内部员工系统，目标是把线下投保流程从“电话问家长 + 手工核验 + 人工记录状态”改成一套可追踪的业务闭环：
 
 ```mermaid
 flowchart LR
@@ -36,17 +62,7 @@ flowchart LR
   callback --> boss["老板看板<br/>跨店统计 + 风险告警"]
 ```
 
-## My Role
-
-我独立承接并完成这个 0-1 商业项目，覆盖：
-
-- 需求访谈、业务流程梳理、一期范围收敛
-- 产品方案、角色权限、异常流程和安全方案设计
-- 技术框架设计与云资源采购评估
-- 小程序/H5/后端/数据库/对象存储/人脸识别/保险 API 的交付推进
-- 上线前备案、部署、安全加固、渗透测试配合与问题复盘
-
-## Security-Driven Cloud Procurement
+## 安全驱动的云资源采购
 
 客户对儿童数据安全非常敏感，所以云资源不是“随便买一台机器跑起来”，而是围绕数据隔离、访问控制、备份恢复和上线审核来采购。
 
@@ -60,7 +76,7 @@ flowchart LR
 
 更完整的采购取舍见 [docs/cloud-procurement-rationale.md](docs/cloud-procurement-rationale.md)。
 
-## Technical Highlights
+## 技术亮点
 
 - [字段级加密与盲索引](src/field-crypto)：AES-256-GCM 加密姓名/证件号/手机号，同时用 HMAC 指纹支持不解密查重
 - [自然日保障去重](src/coverage-window)：保险按自然日生效，不能用滚动 24 小时误判“已投保”
@@ -68,7 +84,7 @@ flowchart LR
 - [保险状态机](src/insurance-state-machine)：投保、支付、承保、失败、重复、卡单等状态显式建模
 - [范围化权限](src/scoped-rbac)：教练、前台、老板有不同数据边界，老板是小门店真实经营中的权限超集
 
-## Architecture
+## 系统架构
 
 ```mermaid
 flowchart TB
@@ -101,7 +117,28 @@ flowchart TB
   insurer --> api
 ```
 
-## What Is Open-Sourced
+## 仓库结构
+
+```text
+docs/
+  product-overview.md              产品概览
+  architecture.md                  系统架构
+  security-and-privacy.md          安全与隐私设计
+  cloud-procurement-rationale.md   云资源采购依据
+  async-integration.md             保险异步集成可靠性
+  decisions/                       关键产品与技术决策
+
+src/
+  field-crypto/                    字段加密、盲索引、脱敏
+  coverage-window/                 自然日保障去重
+  insured-name-guard/              姓名静默失败防御
+  insurance-state-machine/         保险订单状态机
+  scoped-rbac/                     角色与门店权限边界
+
+tests/                             不依赖外部服务的单元测试
+```
+
+## 开源边界
 
 这个仓库公开的是可以复用的**通用能力实现**和**设计文档**：
 
@@ -117,7 +154,7 @@ flowchart TB
 - 第三方保险平台接口文档、真实字段、签名规则和密钥
 - 真实儿童姓名、身份证号、人脸照片、手机号和保单号
 
-## Screenshots
+## 界面截图
 
 截图会放在 `screenshots/`，只使用脱敏演示数据。计划包含：
 
@@ -127,7 +164,7 @@ flowchart TB
 - 投保状态与异常处理页
 - 老板经营看板
 
-## Run Tests
+## 运行测试
 
 这个仓库不依赖外部服务，也不需要安装 npm 包：
 
@@ -135,7 +172,7 @@ flowchart TB
 npm test
 ```
 
-## Further Reading
+## 延伸阅读
 
 - [产品概览](docs/product-overview.md)
 - [系统架构](docs/architecture.md)
